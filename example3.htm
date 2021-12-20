@@ -34,56 +34,45 @@
                 </li>
             </ul>
         </nav>
-
-        <div class="text">
-            <h3><b>Графики...</b><br><br></h3>
-        </div>
         
         <div class="code">
-            plt.rcParams[<str>"figure.figsize"</str>] = (<cmds>10</cmds>,<cmds>5</cmds>)<br>
-
-            <com>#Распределение</com><br>
-            ax = sns.countplot(y = <str>'building_age'</str>, palette = <str>'Set1'</str>, data = df)<br>
-            ax.set(title = <str>'Распределение building_age по количеству'</str>,<br>
-            xlabel = <str>'Количество'</str>, ylabel = <str>'Возраст'</str>)<br>
-            plt.show()<br>
+            
         </div>
-
-        <div class="pic">
-            <img src="Pics/site1.png"/>.
-        </div><br>
 
         <div class="code">
-            <com>#Посмотрим зависимости building_age от числовых признаков</com><br>
-            plt.rcParams[<str>"figure.figsize"</str>] = (<cmds>10</cmds>,<cmds>5</cmds>)<br>
-            sns.heatmap(df.corr(), annot = <cmds>True</cmds>, fmt = <str>".01f"</str>)<br>
-
-            <com>#По факту что и df.corr(), но в графическом виде</com><br>
+            data = na_zero[na_zero['target'] == 1]<br>
+            data = data.append(na_zero[na_zero['target'] == 0][:2297])<br>
+            x = data.drop(["target"],axis=1)<br>
+            y = data['target']<br>
+            from sklearn.model_selection import train_test_split<br>
+            x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2)<br>
         </div>
-
-        <div class="pic">
-            <img src="Pics/site2.png"/>.
-        </div><br>
 
         <div class="code">
-            sns.boxplot(data = df[df[<str>"price"</str>] < <cmds>1000000</cmds>], x = <str>"price"</str>, y = <str>"sub_type"</str>)<br>
+            from sklearn.tree import DecisionTreeClassifier<br>
+            model = DecisionTreeClassifier()<br>
+            model.fit(x_train, y_train)<br>
+            model.score(x_test, y_test)<br>
         </div>
-
-        <div class="pic">
-            <img src="Pics/site3.png"/>.
-        </div><br>
 
         <div class="code">
-            <com>#Гистограмма Energy Star Score</com><br>
-            plt.style.use(<str>'fivethirtyeight'</str>)<br>
-            plt.hist(df[df[<str>'price'</str>] < <cmds>20000</cmds>][<str>'price'</str>].dropna(), bins = <cmds>100</cmds>, edgecolor = <str>'k'</str>);<br>
-            plt.xlabel(<str>'цена'</str>); plt.ylabel(<str>'Кол-во построек'</str>);<br>
-            plt.title(<str>'Распределение формирования цен'</str>);<br>
+            models = ['ensemble.BaggingClassifier', 'ensemble.ExtraTreesClassifier', 'ensemble.GradientBoostingClassifier', 'ensemble.RandomForestClassifier', 'ensemble.VotingClassifier', 'ensemble.HistGradientBoostingClassifier', 'gaussian_process.GaussianProcessClassifier', 'linear_model.PassiveAggressiveClassifier', 'linear_model.RidgeClassifier', 'linear_model.RidgeClassifierCV', 'linear_model.SGDClassifier', 'multiclass.OneVsRestClassifier', 'multiclass.OneVsOneClassifier', 'multiclass.OutputCodeClassifier', 'multioutput.ClassifierChain', 'multioutput.MultiOutputClassifier', 'neighbors.KNeighborsClassifier', 'neighbors.RadiusNeighborsClassifier', 'neural_network.MLPClassifier', 'semi_supervised.SelfTrainingClassifier', 'tree.DecisionTreeClassifier', 'tree.ExtraTreeClassifier']<br>
+            for name in models:<br>
+            split = name.split('.')<br>
+            package = "sklearn."+split[0]<br>
+            name = split[1]<br>
+            model = getattr(__import__(package, fromlist=[name]), name)<br>
+            try:<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;model = model()<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;model.fit(X=x_train,y=y_train)<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;print(name,' ',model.score(x_test,y_test))<br>
+            except:<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;pass<br>
         </div>
 
-        <div class="pic">
-            <img src="Pics/site4.png"/>
-        </div><br>
+        <div class="code">
+            
+        </div>
 
         <div class="code">
             

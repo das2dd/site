@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <meta charset="utf-8">
+        <link rel="stylesheet" type="text/css" href="style.css"></link>
+	    <title>Коко-джамбо</title>
+    </head>
+    <body>
+        <nav class="four">
+            <ul class="topmenu">
+                <li>
+                    <a href="index.html">Главная</a>
+                    <ul class="submenu">
+                        <li><a href="example1.htm" target="_blank">Прим. 1</a></li>
+                        <li><a href="example2.htm" target="_blank">Прим. 2</a></li>
+                        <li><a href="example3.htm" target="_blank">Другое</a></li>
+                    </ul>
+                </li>
+                <li><a href="graphs.html">Графики</a>
+                <li>
+                    <a href="links.html">Ссылки</a>
+                    <ul class="submenu">
+                        <li><a href="https://scikit-learn.org/stable/index.html" target="_blank">Scikit</a></li>
+                        <li><a href="https://pandas.pydata.org/" target="_blank">Pandas</a></li>
+                        <li><a href="https://numpy.org/" target="_blank">NumPy</a></li>
+                        <li><a href="https://seaborn.pydata.org/" target="_blank">SeaBorn</a></li>
+                        <li><a href="https://matplotlib.org/" target="_blank">MatPlot Lib</a></li>
+                        <li><a href="https://habr.com/ru/company/ruvds/blog/494720/" target="_blank">Шпар с Habr</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+
+        <div class="text">
+            <h3><b>Пример 2...</b><br><br></h3>
+        </div>
+        
+        <!---->
+        <div class="code">
+            <com>#1.1</com><br>
+            <com>#Загрузка необходимых библиотек для работы с данными</com><br>
+            <cmds>import</cmds> matplotlib.pyplot <cmds>>as</cmds> plt<br>
+            <cmds>import</cmds> seaborn <cmds>>as</cmds> sns<br>
+            <cmds>import</cmds> numpy <cmds>>as</cmds> np<br>
+            <cmds>import</cmds> pickle<br>
+            <cmds>import</cmds> pandas <cmds>>as</cmds> pd<br>
+            <com>#Чтение данных из csv и pkl</com><br>
+            df_train = pd.read_csv(<str>'train_ses.csv'</str>, index_col=0)<br>
+            df_test = pd.read_csv(<str>'test_ses.csv'</str>, index_col=0)<br>
+            pkl = pd.read_pickle(<str>'site.pkl'</str>)<br>
+        </div>
+
+        <div class="code">
+            pkl = pd.DataFrame(pkl.keys(), index=pkl.values(), columns=[<str>'title'</str>])<br>
+        </div>
+
+        <div class="code">
+            <com>#Замена NaN значений</com><br>
+            df_train = df_train.dropna()<br>
+            df_test = df_train.dropna()<br>
+        </div>
+
+        <div class="code">
+            def split(col):<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;df_train[[<str>'Year'</str>, <str>'Month'</str>]] = df_train[col].str.split(<str>'-'</str>,<cmds>1</cmds>, expand=<cmds>True</cmds>)<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;df_train[[<str>'Month'</str>, <str>'Cle'</str>]] = df_train[<str>'Month'</str>].str.split(<str>'-'</str>,<cmds>1</cmds>,expand=<cmds>True</cmds>)<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;del df_train[<str>'Cle'</str>]<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;df_train[<str>'Year/Month'</str>] = df_train[<str>'Year'</str>] + df_train[<str>'Month'</str>]<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;del df_train[<str>'Year'</str>]<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;del df_train[<str>'Month'</str>]<br>
+        </div>
+
+        <div class="code">
+            for a in range(1,11):<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;st = 'time'+str(a)<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;split(st)<br>
+            df_train['Year/Month']= df_train[<str>'Year/Month'</str>].astype(<cmds>int</cmds>)<br>
+        </div>
+
+        <div class="code">
+            plt.figure(figsize=(<cmds>16</cmds>, <cmds>10</cmds>))<br>
+            sns.countplot(data=df_train, x=<str>'Year/Month'</str>, hue=<str>'target'</str>)<br>
+        </div>
+
+        <div class="pic">
+            <img src="Pics2/1.png"/>
+        </div>
+    </body>
+</html>

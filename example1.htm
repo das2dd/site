@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <meta charset="utf-8">
+        <link rel="stylesheet" type="text/css" href="style.css"></link>
+	    <title>Коко-джамбо</title>
+    </head>
+    <body>
+        <nav class="four">
+            <ul class="topmenu">
+                <li>
+                    <a href="index.html">Главная</a>
+                    <ul class="submenu">
+                        <li><a href="example1.htm" target="_blank">Прим. 1</a></li>
+                        <li><a href="example2.htm" target="_blank">Прим. 2</a></li>
+                        <li><a href="example3.htm" target="_blank">Другое</a></li>
+                    </ul>
+                </li>
+                <li><a href="graphs.html">Графики</a>
+                <li>
+                    <a href="links.html">Ссылки</a>
+                    <ul class="submenu">
+                        <li><a href="https://scikit-learn.org/stable/index.html" target="_blank">Scikit</a></li>
+                        <li><a href="https://pandas.pydata.org/" target="_blank">Pandas</a></li>
+                        <li><a href="https://numpy.org/" target="_blank">NumPy</a></li>
+                        <li><a href="https://seaborn.pydata.org/" target="_blank">SeaBorn</a></li>
+                        <li><a href="https://matplotlib.org/" target="_blank">MatPlot Lib</a></li>
+                        <li><a href="https://habr.com/ru/company/ruvds/blog/494720/" target="_blank">Шпар с Habr</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+
+        <div class="text">
+            <h3><b>Пример 1...</b><br><br></h3>
+        </div>
+
+
+        <!---->
+        <div class="code">
+            import pandas as pd #Библиотека для обработки и анализа данных<br>
+            import numpy as np #Библиотека для работы с массивами<br>
+            import matplotlib.pyplot as plt #Библиотека для построения графиков<br>
+            import seaborn as sns #Библиотека для построения графиков<br>
+            import pickle<br>
+        </div>
+
+        <div class="code">
+            df_train = pd.read_csv('train_ses.csv', index_col=0)<br>
+            df_test = pd.read_csv('test_ses.csv', index_col=0)<br>
+        </div>
+
+        <div class="code">
+            sites = pd.read_pickle('site.pkl')<br>
+            sites<br>
+        </div>
+
+        <div class="code">
+            sitesdf = pd.DataFrame(sites.keys(), index=sites.values(), columns=['title'])<br>
+            sitesdf<br>
+        </div>
+
+        <div class="code">
+            df_train = df_train.dropna()<br>
+        </div>
+
+        <div class="code">
+            def split(col):<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;df_train[['Year', 'Month']] = df_train[col].str.split('-',1, expand=True)<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;df_train[['Month', 'Cle']] = df_train['Month'].str.split('-',1,expand=True)<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;del df_train['Cle']<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;df_train['Y/M'] = df_train['Year'] + df_train['Month']<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;del df_train['Year']<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;del df_train['Month']<br>
+        </div>
+
+        <div class="code">
+            #times = df_train[(f'time{x}' for x in range(1,11))]#отклонение дат нечтожно можно использовать одну для всех за сессию<br>
+            #times = times.dropna()<br>
+            #times.transpose().std()<br>
+        </div>
+
+        <div class="code">
+            for a in range(1,11):<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;st = 'time'+str(a)<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;split(st)<br>
+            
+            df_train['Y/M'] = df_train['Y/M'].astype(int)<br>
+        </div>
+
+        <div class="code">
+            plt.figure(figsize=(16, 10))<br>
+            sns.countplot(data=df_train, x='Y/M', hue='target')<br>
+        </div>
+
+        <div class="pic">
+            <img src="Pics1/1.png"/>
+        </div>
+
+        <div class="code">
+            %%time<br>
+            support_df = None<br>
+            main_df = None<br>
+            <br>
+            lenght = 2000<br>
+            <br>
+            for i in range(0, 1, lenght):<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;df_1 = pd.get_dummies(df_train['site1'][i:i+lenght])<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;df_2 = pd.get_dummies(df_train['site2'][i:i+lenght])<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;df_3 = pd.get_dummies(df_train['site3'][i:i+lenght])<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;df_4 = pd.get_dummies(df_train['site4'][i:i+lenght])<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;df_5 = pd.get_dummies(df_train['site5'][i:i+lenght])<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;df_6 = pd.get_dummies(df_train['site6'][i:i+lenght])<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;df_7 = pd.get_dummies(df_train['site7'][i:i+lenght])<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;df_8 = pd.get_dummies(df_train['site8'][i:i+lenght])<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;df_9 = pd.get_dummies(df_train['site9'][i:i+lenght])<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;df_10 = pd.get_dummies(df_train['site10'][i:i+lenght])<br>
+                <br>
+                &nbsp;&nbsp;&nbsp;&nbsp;if (support_df is None):<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;support_df = df_1<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;else:<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;support_df.add(df_1, fill_value=0)<br>
+                <br>
+                &nbsp;&nbsp;&nbsp;&nbsp;support_df = support_df.add(df_2, fill_value=0)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;support_df = support_df.add(df_3, fill_value=0)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;support_df = support_df.add(df_4, fill_value=0)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;support_df = support_df.add(df_5, fill_value=0)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;support_df = support_df.add(df_6, fill_value=0)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;support_df = support_df.add(df_7, fill_value=0)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;support_df = support_df.add(df_8, fill_value=0)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;support_df = support_df.add(df_9, fill_value=0)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;support_df = support_df.add(df_10, fill_value=0)<br>
+                <br>
+                &nbsp;&nbsp;&nbsp;&nbsp;if (main_df is None):<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;main_df = support_df<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;else:<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;main_df.add(support_df)<br>
+            # support_df<br>
+            main_df<br>
+        </div>
+
+        <div class="code">
+            %%time<br>
+            data = pd.DataFrame(columns=sitesdf.index.tolist())<br>
+            data = data.add(main_df, fill_value=0)<br>
+            data.fillna(0, inplace=True)<br>
+            data
+        </div>
+
+        <div class="code">
+            df_train.iloc[2]<br>
+        </div>
+
+        <div class="code">
+            data.iloc[2][782]<br>
+        </div>
+
+        <div class="code">
+
+        </div>
+    </body>
+</html>
