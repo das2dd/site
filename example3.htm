@@ -34,48 +34,603 @@
                 </li>
             </ul>
         </nav>
+
+        <div class="text">
+            В Python ключевое слово import применяется для того, чтобы сделать код в одном модуле доступным для работы в другом. Импорт в Python важен для эффективного структурирования кода. Правильное применение импорта повысит вашу продуктивность: вы сможете повторно использовать код и при этом продолжать осуществлять поддержку своих проектов.
+            <br><br>
+            В статье представлен подробный обзор инструкции import в Python и того, как она работает. Здесь мощная система импорта. Вам предстоит узнать, как эту мощь задействовать, а также изучить ряд понятий, лежащих в основе системы импорта в Python. Их изложение в статье построено главным образом на примерах (в помощь вам будут несколько примеров кода).
+        </div>
         
         <div class="code">
-            
-        </div>
-
-        <div class="code">
-            data = na_zero[na_zero['target'] == 1]<br>
-            data = data.append(na_zero[na_zero['target'] == 0][:2297])<br>
-            x = data.drop(["target"],axis=1)<br>
-            y = data['target']<br>
+            #Импорт библиотек для работы с данными<br>
+            import pickle<br>
+            import pandas as pd<br>
+            import seaborn as sbn<br>
+            import numpy as np<br>
+            import matplotlib.pyplot as plt<br>
+            import sklearn as skl<br>
             from sklearn.model_selection import train_test_split<br>
-            x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2)<br>
+        </div>
+
+        <div class="text">
+            Модуль pickle реализует мощный алгоритм сериализации и десериализации объектов Python. "Pickling" - процесс преобразования объекта Python в поток байтов, а "unpickling" - обратная операция, в результате которой поток байтов преобразуется обратно в Python-объект. Так как поток байтов легко можно записать в файл, модуль pickle широко применяется для сохранения и загрузки сложных объектов в Python.
+            Не загружайте с помощью модуля pickle файлы из ненадёжных источников. Это может привести к необратимым последствиям.
+            Модуль pickle предоставляет следующие функции для удобства сохранения/загрузки объектов:
+        </div>
+
+        <div class="text">
+            Часто сериализация используется для сохранения пользовательских данных между разными сессиями работы приложения, обычно игры. Более простой пример - вы работаете в интерактивном режиме и создали список или словарь, который захотите использовать в следующий раз. Для этого с помощью функции dump() модуля pickle вы сохраняете объект в файл, а с помощь load() восстанавливаете в следующий раз.
         </div>
 
         <div class="code">
+            #Загрузка данных из файла site.pkl<br>
+            pkl = pd.read_pickle('site.pkl')<br>
+        </div>
+
+        <div class="text">
+            Объект DataFrame лучше всего представлять себе в виде обычной таблицы и это правильно, ведь DataFrame является табличной структурой данных. В любой таблице всегда присутствуют строки и столбцы. Столбцами в объекте DataFrame выступают объекты Series, строки которых являются их непосредственными элементами.
+            DataFrame проще всего сконструировать на примере питоновского словаря:
+        </div>
+
+        <div class="code">
+            #Создание DataFrame по данным из файла site.pkl<br>
+            df_sites = pd.DataFrame(pkl.keys(), index=pkl.values(), columns=['title'])<br>
+            df_sites<br>
+        </div>
+
+        <div class="code">
+            #Сортировка данных по индексу id_site<br>
+            df_sites.index.name = 'id_site'<br>
+            df_sites = df_sites.sort_index()<br>
+            df_sites.head()<br>
+        </div>
+
+        <div class="code">
+            #Загрузка данных из train_ses.csv<br>
+            df_train = pd.read_csv('train_ses.csv', sep=',', index_col='session_id', low_memory=False)<br>
+            df_train.head()<br>
+        </div>
+
+        <div class="code">
+            #Загрузка данных из test_ses.csv<br>
+            df_test = pd.read_csv('test_ses.csv', sep=',', index_col='session_id', low_memory=False)<br>
+            df_test.head()<br>
+        </div>
+
+        <div class="text">
+            Python - отличный язык для анализа данных, в первую очередь из-за фантастической экосистемы пакетов Python, ориентированных на данные. Pandas - один из таких пакетов, который значительно упрощает импорт и анализ данных. Функция
+            Pandas dataframe.info () используется для получения краткого обзора фрейма данных. Это очень удобно при исследовательском анализе данных. Чтобы получить быстрый обзор набора данных, мы используем функцию dataframe.info ().
+        </div>
+
+        <div class="code">
+            #Проверка типов данных в df_train<br>
+            df_train.info()<br>
+        </div>
+
+        <div class="code">
+            #Проверка типов данных в df_test<br>
+            df_test.info()<br>
+        </div>
+
+        <div class="code">
+            #Преобразование значений object в datetime<br>
+            def replace_time_todatetime(dataFrame):<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;for i in range(1, 11):<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;column = f'time{i}'<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dataFrame[column] = pd.to_datetime(dataFrame[column])<br>
+        </div>
+
+        <div class="code">
+            #Преобразование столбцов в тип datetime<br>
+            replace_time_todatetime(df_train)<br>
+            df_train.info()<br>
+        </div>
+
+        <div class="text">
+            Типы данных в Python позволяют классифицировать данные, определить значения, которые можно присвоить, и операции, которые можно выполнить с этими данными. В программировании бывает необходимо конвертировать один тип данных в другой, чтобы получить доступ к другим функциям: например, склеить числовые значения со строками или представить целые числа в виде десятичных.
+        </div>
+
+        <div class="code">
+            #Преобразование столбцов в тип datetime<br>
+            replace_time_todatetime(df_test)<br>
+            df_test.info()<br>
+        </div>
+
+        <div class="code">
+            #Проверка на пустые значения df_train<br>
+            df_train.isnull().sum()<br>
+        </div>
+
+        <div class="code">
+            #Проверка на пустые значения df_test<br>
+            df_test.isnull().sum()<br>
+        </div>
+
+        <div class="code">
+            Замена пустых значений<br>
+            #Категориальные данные заменяются на моду<br>
+
+            #Функция замены пустых значений на моду<br>
+            def replace_value_site(dataFrame):<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;for i in range(2, 11):<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;column_name = f'site{i}'<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dataFrame[column_name].fillna(dataFrame[column_name].mode()[0], inplace=True)<br>
+        </div>
+
+        <div class="text">
+            Как правило, NaN — это проблема, для которой нужно найти определенное решение, особенно при работе с анализом данных. Эти данные часто появляются при извлечении информации из непроверенных источников или когда в самом источнике недостает данных. Также значения NaN могут генерироваться в специальных случаях, например, при вычислении логарифмов для отрицательных значений, в случае исключений при вычислениях или при использовании функций. Есть разные стратегии работы со значениями NaN.
+            Несмотря на свою «проблемность» pandas позволяет явно определять NaN и добавлять это значение в структуры, например, в Series. Для этого внутри массива достаточно ввести np.NaN в том месте, где требуется определить недостающее значение.
+        </div>
+
+        <div class="code">
+            #Замена NaN в df_train<br>
+            replace_value_site(df_train)<br>
+            df_train.isnull().sum()<br>
+        </div>
+
+        <div class="code">
+            #Функция для замены NaN в df_test<br>
+            replace_value_site(df_test)<br>
+            df_test.isnull().sum()<br>
+        </div>
+
+        <div class="code">
+            #Функция преобразования значений float64 в int64<br>
+            def replace_float_int(dataFrame):<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;for i in range(1, 11):<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;column = f'site{i}'<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dataFrame[column] = dataFrame[column].astype('int64')<br>
+        </div>
+
+        <div class="code">
+            #Преобразование столбцов site_i в df_train к типу int64<br>
+            replace_float_int(df_train)<br>
+            df_train.info()<br>
+        </div>
+
+        <div class="code">
+            #Преобразование столбцов site_i в df_test к типу int64<br>
+            replace_float_int(df_test)<br>
+            df_test.info()<br>
+        </div>
+
+        <div class="text">
+            Набор данных обычно представляет собой выборку из некой более крупной популяции, или генеральной совокупности. Иногда эта популяция слишком большая, чтобы быть измеренной полностью. Иногда она неизмерима по своей природе, потому что она бесконечна по размеру либо потому что к ней нельзя получить непосредственный доступ. В любом случае мы вынуждены делать вывод, исходя из данных, которыми мы располагаем.
+        </div>
+
+        <div class="code">
+            В силу большого количества данных, для дальнейшей работы имеет вынести часть данных в отдельные выборки<br>
+            #Создание выборок для df_train, df_test<br>
+            df_train_low, data = train_test_split(df_train, test_size=0.98)<br>
+            df_test_low, data = train_test_split(df_test, test_size=0.95)<br>
+        </div>
+
+        <div class="code">
+            Создание мешка сайтов для df_train<br>
+        </div>
+
+        <div class="code">
+            #Создание матрицы для встречающихся значений сайтов для первых 1000 строк в df_train_low<br>
+            df_train_matrix = None<br>
+            lenght = 1000<br>
+            for i in range(0, 1, lenght):<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;for j in range(1, 11):<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;column = f'site{j}'<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;support_df = pd.get_dummies(df_train_low[column][i:i+lenght])<br>
+                    <br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (df_train_matrix is None):<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;df_train_matrix = support_df<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else:<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;df_train_matrix.add(support_df, fill_value=0)<br>
+            df_train_matrix.head()<br>
+        </div>
+
+        <div class="text">
+            Такие данные на языке Питон можно хранить и обрабатывать в виде двумерных списков (двумерных массивов) - "список списков".
+Чтобы обработать данные в таблице, надо запоминать состояние каждой ячейки (клетки). Каждая ячейка имеет два номера: номер строки и номер столбца.
+В матрице каждый элемент имеет два индекса: сначала указывается номер строки, затем номер столбца. Нумерация строк и столбцов начинается с нуля.
+        </div>
+        
+        <div class="code">
+            #Сохранение матрицы<br>
+            df_train_matrix.to_csv('df_train_matrix.csv', sep=';')<br>
+        </div>
+
+        <div class="code">
+            Создание мешка сайтов для df_test<br>
+        </div>
+
+        <div class="code">
+            #Создание матрицы для встречающихся значений сайтов для первых 1000 строк в df_train_low<br>
+            df_test_matrix = None<br>
+            lenght = 1000<br>
+            for i in range(0, 1, lenght):<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;for j in range(1, 11):<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;column = f'site{j}'<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;support_df = pd.get_dummies(df_test_low[column][i:i+lenght])<br>
+                    <br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (df_test_matrix is None):<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;df_test_matrix = support_df<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else:<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;df_test_matrix.add(support_df, fill_value=0)<br>
+            df_test_matrix.head()<br>
+        </div>
+
+        <div class="code">
+            #Сохранение матрицы<br>
+            df_test_matrix.to_csv('df_test_matrix.csv', sep=';')<br>
+        </div>
+
+        <div class="code">
+            Проверка предположения, что все сайты были посещены почти в одно и то же время<br>
+        </div>
+
+        <div class="code">
+            df_traint_copy = df_train.copy()<br>
+            df_traint_copy = df_traint_copy.dropna()<br>
+            <br>
+            # Преобразование datetime в unix<br>
+            for key in range(1, 11):<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;key = "time"+str(key)<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;dates = pd.to_datetime(df_traint_copy[key])<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;df_traint_copy[key] = (dates - pd.Timestamp("1970-01-01")) // pd.Timedelta('1s')<br>
+        </div>
+
+        <div class="code">
+            times_df_train = df_traint_copy[(f'time{x}' for x in range(1,11))]<br>
+            plt.figure(figsize=(16, 10))<br>
+            plt.plot(times_df_train.T.std().unique())<br>
+        </div>
+
+        <div class="text">
+   
+        </div>
+
+        <div class="code">
+            df_test_copy = df_test.copy()<br>
+            df_test_copy = df_test_copy.dropna()<br>
+            <br>
+            # Преобразование datetime в unix<br>
+            for key in range(1, 11):<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;key = "time"+str(key)<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;dates = pd.to_datetime(df_test_copy[key])<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;df_test_copy[key] = (dates - pd.Timestamp("1970-01-01")) // pd.Timedelta('1s')<br>
+                <br>
+            times_df_train = df_test_copy[(f'time{x}' for x in range(1,11))]<br>
+            plt.figure(figsize=(16, 10))<br>
+            plt.plot(times_df_train.T.std().unique())<br>
+        </div>
+
+        <div class="code">
+            Удаление столбцов time_i<br>
+
+            По графикам видно, что в среднем время необходимое чтобы пользователь посетил все 10 сайтов находится в пределах 20 минут, т.к. график построен по стандартному отклонению сессии, и можно сделать вывод что будет достаточно только начального значения сессии, и для дальнейших вычислений ограничиться часом, когда была начата сессия, не углубляясь в минуты, секунды.
+        </div><br>
+
+        <div class="text">
+            Python предустановлен в большинстве дистрибутивов Linux и доступен в виде пакета для всех остальных. Однако есть определенные функции, которые вы, возможно, захотите использовать, но которых нет в пакете вашего дистрибутива. Вы можете легко скомпилировать последнюю версию Python из исходников.
+
+            Если Python не предустановлен и отсутствует в репозиториях, вы можете легко создавать пакеты для своего собственного дистрибутива. Взгляните на следующие ссылки:
+        </div>
+
+        <div class="code">
+            #Для df_train<br>
+            df_train = df_train.drop(columns=['time2', 'time3', 'time4', 'time5', 'time6', 'time7', 'time8', 'time9', 'time10'])<br>
+            df_train.head()<br>
+        </div>
+
+        <div class="code">
+            df_test = df_test.drop(columns=['time2', 'time3', 'time4', 'time5', 'time6', 'time7', 'time8', 'time9', 'time10'])<br>
+            df_test.head()<br>
+        </div>
+
+        <div class="code">
+            Визуализация влияния атрибутов на целевую функцию<br>
+        </div>
+
+        <div class="text">
+            Нам часто требуется пойти дальше и установить связь между двумя или несколькими переменными либо предсказать одну переменную при наличии другой. И это подводит нас к теме данной серии из 5 постов - исследованию корреляции и регрессии. Корреляция имеет дело с силой и направленностью связи между двумя или более переменными. Регрессия определяет природу этой связи и позволяет делать предсказания на ее основе.
+        </div>
+
+        <div class="code">
+            #Диаграмма коэффициентов корреляций<br>
+            plt.figure(figsize=(16, 10))<br>
+            sbn.heatmap(df_train.corr(), annot = True, fmt='.1g')<br>
+        </div>
+
+        <div class="code">
+            #Создание визуального отображения отношения между всеми парами переменных, по облегченной выборке, в силу большого количества данных для отображения и связанных с этим ресурсов<br>
+            plt.figure(figsize=(16, 10))<br>
+            sbn.pairplot(df_train_low, hue="target")<br>
+        </div>
+
+        <div class="code">
+            Столбцы site_i являются категориальными признаками, для них не получается отследить прямую зависимость целевой переменной (target), необходимо создать дополнительные параметры и визуализировать их значения
+
+            <br>Создание дополнительных параметров<br>
+            
+            Т.к. для модели машинного обучения зачастую не обрабатывают данные типа datetime, их необходимо разбить на дополнительные столбцы, каждый из которых хранил бы в себе целочисленное значение
+        </div><br>
+
+        <div class="code">
+            #Функция создания дополнительного параметра вида ГГГГММ с целочисленным значением, который необходим для учитывания помесячного линейного тренда за весь период предоставленных данных
+            <br>
+            def split_datetime_yearmonth(dataframe, column):<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;year = 'Year/Month'<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;dataframe[year] = [f'{item.year}{item.month:02}' for item in dataframe[column]]<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;dataframe[year] = dataframe[year].astype('int64')<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;dataframe = dataframe.drop(columns=column)<br>
+        </div>
+
+        <div class="code">
+            #Использование данной функции для создания дополнительного параметра по типу ГГГГММ<br>
+            split_datetime_yearmonth(df_train, 'time1')<br>
+            df_train.head()<br>
+        </div>
+
+        <div class="code">
+            #Функция вынесения значений (День, час, минуты, секунды) из datetime в дополнительный параметр<br>
+            def split_datetime_int(dataframe, target_column, new_column):<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;column = new_column<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;if column == 'day':<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dataframe[column] = [item.day for item in dataframe[target_column]]<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;if column == 'hour':<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dataframe[column] = [item.hour for item in dataframe[target_column]]<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;dataframe = dataframe.drop(columns=target_column)<br>
+        </div>
+
+        <div class="code">
+            split_datetime_int(df_train, 'time1', 'day')<br>
+            df_train.head()<br>
+        </div>
+
+        <div class="code">
+            #Использование данной функции для вынесения часа в дополнительный параметр<br>
+            split_datetime_int(df_train, 'time1', 'hour')<br>
+            df_train.head()<br>
+        </div>
+
+        <div class="code">
+            #Т.к. вся информация из time1 вынесена в дополнительные параметры, данный столбец можно удалить<br>
+            df_train = df_train.drop(columns=['time1'])<br>
+            df_train.head()<br>
+        </div>
+
+        <div class="code">
+            Визуализация данных<br>
+            <br>
+            На какой сайт был совершен переход однозначно является важным параметром. Необходимо проверить на зависимость дополнительные параметры, созданные ранее<br>
+        </div>
+
+        <div class="text">
+            В строке fig = plt.figure() мы создали область Figure (экземпляр класса figure). В строке ax = fig.add_subplot(111) мы добавили к Figure область Axes. Вообще, было бы правильнее использовать fig.add_axes, но в данном случае fig.add_subplot(111) намного удобнее, в конце концов subplot просто размещает Axes на сетке Figure. Обратите внимание на параметр, который мы передаем 111 - это первая строка, первый столбец и первая (единственная) ячейка на сетке Figure.
+        </div>
+
+        <div class="code">
+            #Проверка зависимости целевого параметра от Year/Month<br>
+            plt.figure(figsize=(16, 10))<br>
+            sbn.countplot(x='Year/Month', hue='target', data=df_train)<br>
+        </div>
+
+        <div class="code">
+            По графику видно, что количество выявленных сессий преступников больше в конце 2013 и начале 2014<br>
+        </div>
+
+        <div class="code">
+            #Проверка зависимости целевого параметра от day<br>
+            plt.figure(figsize=(16, 10))<br>
+            sbn.countplot(x='day', hue='target', data=df_train)<br>
+        </div>
+
+        <div class="code">
+            По графику видно, что преступники более активны в период от 12 до 24 числа месяца<br>
+        </div>
+
+        <div class="code">
+            #Проверка зависимости целевого параметра от hour<br>
+            plt.figure(figsize=(16, 10))<br>
+            sbn.countplot(x='hour', hue='target', data=df_train)<br>
+        </div>
+
+        <div class="code">
+            По графику видно, что преступники более активны с 12-00 до 18-00<br>
+            <br>
+            Выявлена явная зависимость дополнительных параметров Year/Month, day, hour с целевой переменной target.<br>
+            <br>
+            В df_test необходимо также выделить данные параметры.<br>
+        </div>
+
+        <div class="code">
+            #Вынесение данных Year/Month, day, hour из столбца time1, при помощи созданных ранее функций с последующим удалением столбца time1<br>
+            split_datetime_yearmonth(df_test, 'time1')<br>
+            split_datetime_int(df_test, 'time1', 'day')<br>
+            split_datetime_int(df_test, 'time1', 'hour')<br>
+            df_test = df_test.drop(columns=['time1'])<br>
+            df_test.head()
+        </div>
+
+        <div class="code">
+            Сохранение предобработанных данных во внешние файлы<br>
+        </div>
+
+        <div class="code">
+            #Сохранение df_train в файл df_train.csv<br>
+            df_train.to_csv('df_train.csv', sep=';')<br>
+        </div>
+
+        <div class="code">
+            #Сохранение df_test в файл df_test.csv<br>
+            df_test.to_csv('df_test.csv', sep=';')<br>
+        </div>
+
+        <div class="code">
+            <br>Модуль 2<br>
+        </div>
+
+        <div class="text">
+            В Python ключевое слово import применяется для того, чтобы сделать код в одном модуле доступным для работы в другом. Импорт в Python важен для эффективного структурирования кода. Правильное применение импорта повысит вашу продуктивность: вы сможете повторно использовать код и при этом продолжать осуществлять поддержку своих проектов.
+            <br><br>
+            В статье представлен подробный обзор инструкции import в Python и того, как она работает. Здесь мощная система импорта. Вам предстоит узнать, как эту мощь задействовать, а также изучить ряд понятий, лежащих в основе системы импорта в Python. Их изложение в статье построено главным образом на примерах (в помощь вам будут несколько примеров кода).
+        </div>
+
+        <div class="code">
+            #Импорт библиотек<br>
             from sklearn.tree import DecisionTreeClassifier<br>
-            model = DecisionTreeClassifier()<br>
-            model.fit(x_train, y_train)<br>
-            model.score(x_test, y_test)<br>
+            from sklearn.ensemble import RandomForestClassifier<br>
+            from sklearn.ensemble import ExtraTreesClassifier<br>
+            from sklearn.neighbors import KNeighborsClassifier<br>
         </div>
 
         <div class="code">
-            models = ['ensemble.BaggingClassifier', 'ensemble.ExtraTreesClassifier', 'ensemble.GradientBoostingClassifier', 'ensemble.RandomForestClassifier', 'ensemble.VotingClassifier', 'ensemble.HistGradientBoostingClassifier', 'gaussian_process.GaussianProcessClassifier', 'linear_model.PassiveAggressiveClassifier', 'linear_model.RidgeClassifier', 'linear_model.RidgeClassifierCV', 'linear_model.SGDClassifier', 'multiclass.OneVsRestClassifier', 'multiclass.OneVsOneClassifier', 'multiclass.OutputCodeClassifier', 'multioutput.ClassifierChain', 'multioutput.MultiOutputClassifier', 'neighbors.KNeighborsClassifier', 'neighbors.RadiusNeighborsClassifier', 'neural_network.MLPClassifier', 'semi_supervised.SelfTrainingClassifier', 'tree.DecisionTreeClassifier', 'tree.ExtraTreeClassifier']<br>
-            for name in models:<br>
-            split = name.split('.')<br>
-            package = "sklearn."+split[0]<br>
-            name = split[1]<br>
-            model = getattr(__import__(package, fromlist=[name]), name)<br>
-            try:<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;model = model()<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;model.fit(X=x_train,y=y_train)<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;print(name,' ',model.score(x_test,y_test))<br>
-            except:<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;pass<br>
+            #Выделение целевого параметра<br>
+            y = df_train['target']<br>
+            x = df_train.drop(columns=['target'])<br>
         </div>
 
         <div class="code">
-            
+            #Разбиение данных на тестовую и отложенную выборку<br>
+            x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, stratify=y)<br>
         </div>
 
         <div class="code">
-            
+            #Создание объектов моделей<br>
+            model_DecTree = DecisionTreeClassifier()<br>
+            model_RanFore = RandomForestClassifier()<br>
+            model_ExtTree = ExtraTreesClassifier()<br>
+            model_KNeighb = KNeighborsClassifier()<br>
         </div>
+
+        <div class="code">
+            #Обучение моделей<br>
+            model_DecTree.fit(x_train, y_train)<br>
+            model_RanFore.fit(x_train, y_train)<br>
+            model_ExtTree.fit(x_train, y_train)<br>
+            model_KNeighb.fit(x_train, y_train)<br>
+        </div>
+
+        <div class="code">
+            #Оценка результатов обученных моделей<br>
+            results = {}<br>
+            <br>
+            results['DecisionTreeClassifier'] = model_DecTree.score(x_test, y_test)<br>
+            results['RandomForestClassifier'] = model_RanFore.score(x_test, y_test)<br>
+            results['ExtraTreesClassifier'] = model_ExtTree.score(x_test, y_test)<br>
+            results['KNeighborsClassifier'] = model_KNeighb.score(x_test, y_test)<br>
+            <br>
+            plt.figure(figsize=(16, 10))<br>
+            pd.DataFrame.from_dict(data=results, orient='index').plot(kind='bar', legend=None)<br>
+        </div>
+
+        <div class="code">
+            #Визуально сложно поределить какая из моделей более точно предсказывает сессию преступника<br>
+            pd.DataFrame([results]).max()<br>
+        </div>
+
+        <div class="code">
+            Лучше всего для текущих данных подходит модель ExtraTreesClassifier, с точностью - 99.4380 %<br>
+            <br>
+            Импорт дополнительных модулей для построения кривых валидации и обучения<br>
+        </div>
+
+        <div class="code">
+            from sklearn.model_selection import validation_curve<br>
+            from sklearn.model_selection import learning_curve<br>
+        </div>
+
+        <div class="text">
+            оценка обучения рассчитывается на основе того, сколько предсказаний ваша модель сделала правильно. Например, ваша модель может иметь оценку 0.9436.. (примерно 94%), что означает, что ваша модель машинного обучения выдала правильное решение 94% времени. Вы часто обнаружите, что во время обучения модель имеет тенденцию набирать больше баллов, чем в тестовом наборе. Вы можете видеть, что оранжевая линия выглядит так, как будто она находится на 1.0, эффективно оценивая 100%, но самый высокий балл перекрестной проверки (теста) находится чуть ниже 100%, что является более распространенным зрелищем.
+
+            Может быть опасно предполагать, что оценка 1.0 означает, что ваша модель идеальна, и именно здесь на рисунке появляется переоснащение, что на высоком уровне означает, что ваша модель слишком плотно подходит к вашим тренировочным данным и не будет хорошо обобщаться на новые данные. Я бы рекомендовал изучить это для получения дополнительной информации, на веб-сайте Sci-Kit learns есть отличная документация.
+        </div>
+
+        <div class="code">
+            #Расчет кривой валидации<br>
+            param_range = [10, 20, 30, 40, 50, 60]<br>
+            train_scores, test_scores = validation_curve(ExtraTreesClassifier(), x_test, y_test, param_name="n_estimators", param_range=param_range, scoring="accuracy",n_jobs=-1)<br>
+            train_scores_mean_val = np.mean(train_scores, axis=1)<br>
+            train_scores_std_val = np.std(train_scores, axis=1)<br>
+            test_scores_mean_val = np.mean(test_scores, axis=1)<br>
+            test_scores_std_val = np.std(test_scores, axis=1)<br>
+        </div>
+
+        <div class="code">
+            #Визуализация кривой валидации<br>
+            plt.figure(figsize=(16, 10))<br>
+            plt.xlabel(r"$\gamma$")<br>
+            plt.ylabel("Оценка")<br>
+            plt.ylim(0.0, 1.1)<br>
+            lw = 2<br>
+            plt.semilogx(param_range,train_scores_mean_val,label="Тренировочная оценка",color="darkorange",lw=lw) <br>
+            plt.fill_between(param_range,train_scores_mean_val - train_scores_std_val,train_scores_mean_val + train_scores_std_val,alpha=0.2,color="darkorange",lw=lw)<br>
+            plt.semilogx(param_range,test_scores_mean_val,label="Валидационная оценка",color="navy",lw=lw) <br>
+            plt.fill_between(param_range,train_scores_mean_val - test_scores_std_val,train_scores_mean_val + test_scores_std_val,alpha=0.2,color="navy",lw=lw)<br>
+            plt.legend(loc="best")<br>
+            plt.show()<br>
+        </div>
+
+        <div class="code">
+            Кривая валидации построена от 0.99 до 1, это показывает на то, что тренировочная и валидационная оценка находятся где-то рядом, и они минимальны. Это значит что модель не пере- или недо- обучена
+        </div><br>
+
+        <div class="code">
+            #Расчет кривой обучения<br>
+            train_sizes, train_scores, test_scores, fit_times, _ = learning_curve(ExtraTreesClassifier(),x_test,y_test,n_jobs=-1,return_times=True,train_sizes=np.linspace(0.01, 1, 20))<br>
+            train_scores_mean_lea = np.mean(train_scores, axis=1)<br>
+            train_scores_std_lea = np.std(train_scores, axis=1)<br>
+            test_scores_mean_lea = np.mean(test_scores, axis=1)<br>
+            test_scores_std_lea = np.std(test_scores, axis=1)<br>
+        </div>
+
+        <div class="text">
+            Визуализация данных — это большая часть работы специалистов в области data science. На ранних стадиях развития проекта часто необходимо выполнять разведочный анализ данных (РАД, Exploratory data analysis (EDA)), чтобы выявить закономерности, которые обнаруживают данные. Визуализация данных помогает представить большие и сложные наборы данных в простом и наглядном виде. На этапе окончания проекта важно суметь отчитаться о его результатах так, чтобы даже непрофессионалам, не обладающим техническими знаниями, всё стало ясно и понятно.
+Matplotlib — это популярная библиотека для визуализации данных, написанная на языке Python. Хоть пользоваться ей очень просто, настройка данных, параметров, графиков и отрисовки для каждого нового проекта — занятие нудное и утомительное. В этом посте мы разберем 6 способов визуализации данных и напишем быстрые и простые функции для их реализации с помощью питоновской библиотеки Matplotlib. А пока взгляните на прекрасный график, который поможет вам выбрать правильный тип визуализации данных!
+        </div>
+
+        <div class="code">
+            #Визуализация кривой обучения<br>
+            plt.figure(figsize=(16, 10))<br>
+            plt.grid()<br>
+            plt.fill_between(train_sizes,train_scores_mean_lea - train_scores_std_lea,train_scores_mean_lea + train_scores_std_lea,alpha=0.1,color="r",)<br>
+            plt.fill_between(train_sizes,test_scores_mean_lea - test_scores_std_lea,test_scores_mean_lea + test_scores_std_lea,alpha=0.1,color="g",)<br>
+            plt.plot(train_sizes,train_scores_mean_lea,"o-",color="r",label="Тренировочная оценка")<br>
+            plt.plot(train_sizes,test_scores_mean_lea,"o-",color="g",label="Валидационная оценка")<br>
+            plt.legend(loc="best")<br>
+        </div>
+
+        <div class="code">
+            Кривая обучения построена на 40000 данных, значения тренировочной оценки и валидационной оценки находятся в диапозоне от 0.99 до 1, это показывает на то, что эти все прямые "сошлись", следовательно такого количества данных достаточно для обучения точной модели, она не будет пере- или недо- обучена
+        </div><br>
+
+        <div class="code">
+            #Переобучение модели на всей обучающей выборке<br>
+            model_ExtTree.fit(x, y)<br>
+        </div>
+
+        <div class="code">
+            #Предсказание вероятностей для тестовой выборки<br>
+            predict_data = model_ExtTree.predict(df_test)<br>
+        </div>
+
+        <div class="code">
+            #Создание нового dataframe для отображения предсказаний<br>
+            predict_data_dict = {<br>
+                'target' : predict_data,<br>
+                'session_id' : df_test.index.tolist()<br>
+            }<br>
+            df_predict = pd.DataFrame(predict_data_dict).set_index('session_id')<br>
+        </div>
+
+        <div class="code">
+            #Сохранение df_predict в файл df_predict.csv<br>
+            df_predict.to_csv('df_predict.csv', sep=';')<br>
+        </div>
+
+        <div class="text">
+            Python является популярным и мощным интерпретируемым языком. В отличие от R, Python является и полным языком и платформой, которые можно использовать как для исследований, численных расчетов, так и для разработки производственных систем.
+
+В Python есть также много модулей и библиотек на выбор, обеспечивая несколько способов выполнения каждой задачи.
+
+Лучший способ начать использовать Python для машинного обучения — это разобрать готовый проект по машинному обучению и затем его сделать самому с нуля:
+        </div><br><br><br>
     </body>
 </html>
