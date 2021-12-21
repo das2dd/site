@@ -87,7 +87,7 @@
         </div>
 
         <div class="code">
-            def split(col):<br>
+            def split2(col):<br>
             &nbsp;&nbsp;&nbsp;&nbsp;df_test[['Year', 'Month', 'Day']] = df_test[col].str.split('-',2, expand=True)<br>
             &nbsp;&nbsp;&nbsp;&nbsp;df_test[['Day', 'Cle']] = df_test['Day'].str.split(' ',1,expand=True)<br>
             <br>
