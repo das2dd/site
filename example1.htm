@@ -65,17 +65,25 @@
         </div>
 
         <div class="code">
-            df_train = df_train.dropna()<br>
+            ----------------------------------------------------------------<br>
         </div>
 
         <div class="code">
-            def split(col):<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;df_train[['Year', 'Month']] = df_train[col].str.split('-',1, expand=True)<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;df_train[['Month', 'Cle']] = df_train['Month'].str.split('-',1,expand=True)<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;del df_train['Cle']<br>
+            df_train = df_train.dropna()<br>
+            #df_train = df_train.fillna(0)<br>
+        </div>
+
+        <div class="code">
+            def split(col): #с нулями не работает<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;df_train[['Year', 'Month', 'Day']] = df_train[col].str.split('-',2, expand=True)<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;df_train[['Day', 'Cle']] = df_train['Day'].str.split(' ',1,expand=True)<br>
+            <br>
+            &nbsp;&nbsp;&nbsp;&nbsp;df_train[['Hour', 'Minute', 'Seconds']] = df_train['Cle'].str.split(':',2,expand=True)<br>
+            <br>
             &nbsp;&nbsp;&nbsp;&nbsp;df_train['Y/M'] = df_train['Year'] + df_train['Month']<br>
             &nbsp;&nbsp;&nbsp;&nbsp;del df_train['Year']<br>
             &nbsp;&nbsp;&nbsp;&nbsp;del df_train['Month']<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;del df_train['Cle']<br>
         </div>
 
         <div class="code">
@@ -160,7 +168,74 @@
         </div>
 
         <div class="code">
+            df_train.info()<br>
+        </div>
 
+        <div class="code">
+            for a in range(1,11): #для прогноза эти столбцы с датой не нужны старые<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;st = 'time'+str(a)<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;del df_train[st]<br>
+        </div>
+
+        <div class="code">
+            from sklearn.model_selection import train_test_split<br>
+            y = df_train["target"].values<br>
+            del df_train['target']<br>
+            x = df_train<br>
+            <br>
+            x_train, x_test, y_train, y_test = train_test_split(x,y,test_size=0.2)<br>
+        </div>
+
+        <div class="code">
+            from sklearn.ensemble import RandomForestClassifier<br>
+            from sklearn.neighbors import KNeighborsClassifier<br>
+            from sklearn.tree import DecisionTreeClassifier<br>
+            model = RandomForestClassifier().fit(x_train, y_train)<br>
+            model2 = KNeighborsClassifier().fit(x_train, y_train)<br>
+            model3 = DecisionTreeClassifier().fit(x_train, y_train)<br>
+        </div>
+
+        <div class="code">
+            print(f'1:{model.score(x_test, y_test)} 2:{model2.score(x_test, y_test)} 3:{model3.score(x_test, y_test)}')<br>
+        </div>
+
+        <div class="code">
+            from sklearn.model_selection import validation_curve<br>
+            from sklearn.model_selection import learning_curve<br>
+        </div>
+
+        <div class="code">
+            param_range = [1,15,30,45,60,100]<br>
+            train_scores, test_scores = validation_curve(RandomForestClassifier(), x_test, y_test, param_name='n_estimators', param_range=param_range, scoring='accuracy', n_jobs=-1)<br>
+        </div>
+
+        <div class="code">
+            train_scores_mean = np.mean(train_scores, axis=1)<br>
+            train_scores_std = np.std(train_scores, axis=1)<br>
+            test_scores_mean = np.mean(test_scores, axis=1)<br>
+            test_scores_std = np.std(test_scores, axis=1)<br>
+        </div>
+
+        <div class="code">
+            plt.title('Validation Curve with SVM')<br>
+            plt.xlabel(r'$\gamma$')<br>
+            plt.ylabel('Score')<br>
+            plt.ylim(0.0,1.1)<br>
+            lw = 2<br>
+            plt.semilogx(param_range, train_scores_mean, label='Training score', color='darkorange', lw=lw)<br>
+            plt.fill_between(param_range, train_scores_mean - train_scores_std, train_scores_mean + train_scores_std, alpha=0.2, color='darkorange', lw=lw)<br>
+            plt.semilogx(param_range, train_scores_mean, label= "Cross validation score", color='navy', lw=lw)<br>
+            plt.fill_between(param_range, test_scores_mean - test_scores_std, test_scores_mean + test_scores_std, alpha=0.2, color='navy', lw=lw)<br>
+            plt.legend(loc='best')<br>
+            plt.show()<br>
+        </div>
+
+        <div class="code">
+            
+        </div>
+
+        <div class="code">
+            
         </div>
     </body>
 </html>
