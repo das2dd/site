@@ -48,10 +48,420 @@
             <cmds>import</cmds> numpy <cmds>>as</cmds> np<br>
             <cmds>import</cmds> pickle<br>
             <cmds>import</cmds> pandas <cmds>>as</cmds> pd<br>
-            <com>#Чтение данных из csv и pkl</com><br>
-            df_train = pd.read_csv(<str>'train_ses.csv'</str>, index_col=0)<br>
-            df_test = pd.read_csv(<str>'test_ses.csv'</str>, index_col=0)<br>
+			<cmds>import</cmds> sklearn <cmds>>as</cmds> skl<br>
+			
+            <com>#Чтение данных из pkl</com><br>
             pkl = pd.read_pickle(<str>'site.pkl'</str>)<br>
+			
+			<com>#Создание DataFrame по данным из файла site.pkl</com><br>
+			df_sites = pd.DataFrame(pkl.keys(), index=pkl.values(), columns=['title'])<br>
+			df_sites<br>
+			
+			<com>#Сортировка данных по индексу id_site</com><br>
+			df_sites.index.name = 'id_site'<br>
+			df_sites = df_sites.sort_index()<br>
+			df_sites.head()<br>
+			
+			<com>#Чтение данных из test_ses.csv</com><br>
+			df_test = pd.read_csv('test_ses.csv', sep=',', index_col='session_id', low_memory=False)<br>
+			df_test.head()<br>
+			
+			<com>#Чтение данных из train_ses.csv</com><br>
+			df_train = pd.read_csv('train_ses.csv', sep=',', index_col='session_id', low_memory=False)<br>
+			df_train.head()<br>
+			
+			<com>#Информация о типах данных в df_test</com><br>
+			df_test.info()<br>
+			
+			<com>#Информация о типах данных в df_train</com><br>
+			df_train.info()<br>
+			
+			<com>#Преобразование значений object в datetime</com><br>
+			def replace_time_todatetime(dataFrame):<br>
+				for i in range(1, 11):<br>
+					column = f'time{i}'<br>
+					dataFrame[column] = pd.to_datetime(dataFrame[column])<br>
+					
+			
+			<com>#Преобразование столбцов в тип datetime</com><br>
+			replace_time_todatetime(df_train)<br>
+			df_train.info()<br>
+			
+			<com>#Преобразование столбцов в тип datetime</com><br>
+			replace_time_todatetime(df_test)<br>
+			df_test.info()<br>
+			
+			<com>#Проверка на пустые значения df_train</com><br>
+			df_train.isnull().sum()<br>
+			
+			<com>#Проверка на пустые значения df_test</com><br>
+			df_test.isnull().sum()<br>
+			
+			<com>#Категориальные данные заменяются на моду</com><br>
+			<com>#Функция замены пустых значений на моду</com><br>
+			def replace_value_site(dataFrame):<br>
+				for i in range(2, 11):<br>
+					column_name = f'site{i}'<br>
+					dataFrame[column_name].fillna(dataFrame[column_name].mode()[0], inplace=True)<br>
+			
+			<com>#Замена NaN в df_train</com><br>
+			replace_value_site(df_train)<br>
+			df_train.isnull().sum()<br>
+			
+			<com>#Замена NaN в df_test</com><br>
+			replace_value_site(df_test)<br>
+			df_test.isnull().sum()<br>
+			
+			<com>#Преобразование столбцов site_i в df_train к типу int64</com><br>
+			replace_float_int(df_train)<br>
+			df_train.info()<br>
+			
+			<com>#Преобразование столбцов site_i в df_test к типу int64</com><br>
+			replace_float_int(df_test)<br>
+			df_test.info()<br>
+			
+			<com>#В силу большого количества данных, для дальнейшей работы имеет вынести часть данных в отдельные выборки</com><br>
+			<com>#Создание выборок для df_train, df_test</com><br>
+			df_train_low, data = train_test_split(df_train, test_size=0.98)<br>
+			df_test_low, data = train_test_split(df_test, test_size=0.95)<br>
+			
+			<com>#Создание мешка сайтов для df_train</com><br>
+			<com>#Создание матрицы для встречающихся значений сайтов для первых 1000 строк в df_train_low</com><br>
+			df_train_matrix = None<br>
+			lenght = 1000<br>
+			for i in range(0, 1, lenght):<br>
+				for j in range(1, 11):<br>
+					column = f'site{j}'<br>
+					support_df = pd.get_dummies(df_train_low[column][i:i+lenght])<br>
+    
+					if (df_train_matrix is None):<br>
+						df_train_matrix = support_df<br>
+					else:<br>
+						df_train_matrix.add(support_df, fill_value=0)<br>
+			df_train_matrix.head()<br>
+			
+			<com>#Сохранение матрицы</com><br>
+			df_train_matrix.to_csv('df_train_matrix.csv', sep=';')<br>
+			
+			<com>#Создание мешка сайтов для df_test</com><br>
+			<com>#Создание матрицы для встречающихся значений сайтов для первых 1000 строк в df_test_low</com><br>
+			df_test_matrix = None<br>
+			lenght = 1000<br>
+			for i in range(0, 1, lenght):<br>
+				for j in range(1, 11):<br>
+					column = f'site{j}'<br>
+					support_df = pd.get_dummies(df_test_low[column][i:i+lenght])<br>
+    
+					if (df_test_matrix is None):<br>
+						df_test_matrix = support_df<br>
+					else:<br>
+						df_test_matrix.add(support_df, fill_value=0)<br>
+			df_test_matrix.head()<br>
+			
+			<com>#Сохранение матрицы</com><br>
+			df_test_matrix.to_csv('df_test_matrix.csv', sep=';')<br>
+			
+			<com>Проверка предположения, что все сайты были посещены почти в одно и то же время</com><br>
+			df_traint_copy = df_train.copy()
+			df_traint_copy = df_traint_copy.dropna()
+			
+			<com>#Преобразование datetime в unix</com><br>
+			for key in range(1, 11):<br>
+				key = "time"+str(key)<br>
+				dates = pd.to_datetime(df_traint_copy[key])<br>
+				df_traint_copy[key] = (dates - pd.Timestamp("1970-01-01")) // pd.Timedelta('1s')<br>
+			times_df_train = df_traint_copy[(f'time{x}' for x in range(1,11))]<br>
+			plt.figure(figsize=(16, 10))<br>
+			plt.plot(times_df_train.T.std().unique())<br>
+			
+			df_test_copy = df_test.copy()
+			df_test_copy = df_test_copy.dropna()
+			
+			<com>#Преобразование datetime в unix</com><br>
+			for key in range(1, 11):<br>
+				key = "time"+str(key)<br>
+				dates = pd.to_datetime(df_test_copy[key])<br>
+				df_test_copy[key] = (dates - pd.Timestamp("1970-01-01")) // pd.Timedelta('1s')<br>
+			times_df_train = df_test_copy[(f'time{x}' for x in range(1,11))]<br>
+			plt.figure(figsize=(16, 10))<br>
+			plt.plot(times_df_train.T.std().unique())<br>
+			
+			<com>Удаление столбцов time_i</com><br>
+			<com>По графикам видно, что в среднем время необходимое чтобы пользователь<br> 
+			посетил все 10 сайтов находится в пределах 20 минут, т.к. график построен<br> 
+			по стандартному отклонению сессии, и можно сделать вывод что будет достаточно<br> 
+			только начального значения сессии, и для дальнейших вычислений ограничиться<br> 
+			часом, когда была начата сессия, не углубляясь в минуты, секунды.</com><br>
+			
+			<com>#Для df_train</com><br>
+			df_train = df_train.drop(columns=['time2', 'time3', 'time4', 'time5', 'time6', 'time7', 'time8', 'time9', 'time10'])<br>
+			df_train.head()<br>
+			
+			<com>#Для df_test</com><br>
+			df_test = df_test.drop(columns=['time2', 'time3', 'time4', 'time5', 'time6', 'time7', 'time8', 'time9', 'time10'])<br>
+			df_test.head()<br>
+			
+			<com>#Визуализация влияния атрибутов на целевую функцию</com><br>
+			<com>#Диаграмма коэффициентов корреляций</com><br>
+			plt.figure(figsize=(16, 10))<br>
+			sns.heatmap(df_train.corr(), annot = True, fmt='.1g')<br>
+			
+			<com>#Создание визуального отображения отношения между всеми парами переменных,<br> 
+			по облегченной выборке, в силу большого количества данных для отображения и связанных с этим ресурсов</com><br>
+			plt.figure(figsize=(16, 10))<br>
+			sns.pairplot(df_train_low, hue="target")<br>
+			
+			<com>Столбцы site_i являются категориальными признаками, для них не получается<br>  
+			отследить прямую зависимость целевой переменной (target), необходимо создать<br> 
+			дополнительные параметры и визуализировать их значения</com><br>
+			<com>Создание дополнительных параметров</com><br>
+			<com>Т.к. для модели машинного обучения зачастую не обрабатывают данные типа<br> 
+			datetime, их необходимо разбить на дополнительные столбцы, каждый из которых<br> 
+			хранил бы в себе целочисленное значение</com><br>
+			
+			<com>#Функция создания дополнительного параметра вида ГГГГММ с целочисленным значением,<br> 
+			который необходим для учитывания помесячного линейного тренда за весь период предоставленных данных</com><br>
+			def split_datetime_yearmonth(dataframe, column):<br>
+				year = 'Year/Month'<br>
+				dataframe[year] = [f'{item.year}{item.month:02}' for item in dataframe[column]]<br>
+				dataframe[year] = dataframe[year].astype('int64')<br>
+				dataframe = dataframe.drop(columns=column)<br>
+				
+			<com>#Использование данной функции для создания дополнительного параметра по типу ГГГГММ</com><br>
+			split_datetime_yearmonth(df_train, 'time1')<br>
+			df_train.head()<br>
+			
+			<com>#Функция вынесения значений (День, час, минуты, секунды) из datetime в дополнительный параметр</com><br>
+			def split_datetime_int(dataframe, target_column, new_column):<br>
+				column = new_column<br>
+				if column == 'day':<br>
+					dataframe[column] = [item.day for item in dataframe[target_column]]<br>
+				if column == 'hour':<br>
+					dataframe[column] = [item.hour for item in dataframe[target_column]]<br>
+				dataframe = dataframe.drop(columns=target_column)<br>
+			
+			<com>#Использование данной функции для вынесения дня месяца в дополнительный параметр</com><br>
+			split_datetime_int(df_train, 'time1', 'day')<br>
+			df_train.head()<br>
+			
+			<com>#Использование данной функции для вынесения часа в дополнительный параметр</com><br>
+			split_datetime_int(df_train, 'time1', 'hour')<br>
+			df_train.head()<br>
+			
+			<com>#Т.к. вся информация из time1 вынесена в дополнительные параметры, данный столбец можно удалить</com><br>
+			df_train = df_train.drop(columns=['time1'])<br>
+			df_train.head()<br>
+			
+			<com>Визуализация данных</com><br>
+			<com>На какой сайт был совершен переход однозначно является важным параметром.<br>
+			Необходимо проверить на зависимость дополнительные параметры, созданные ранее</com><br>
+			
+			<com>#Проверка зависимости целевого параметра от Year/Month</com><br>
+			plt.figure(figsize=(16, 10))<br>
+			sns.countplot(x='Year/Month', hue='target', data=df_train)<br>
+			
+			<com>По графику видно, что количество выявленных сессий преступников больше в конце 2013 и начале 2014</com><br>
+			
+			<com>#Проверка зависимости целевого параметра от day</com><br>
+			plt.figure(figsize=(16, 10))<br>
+			sns.countplot(x='day', hue='target', data=df_train)<br>
+			
+			<com>#По графику видно, что преступники более активны в период от 12 до 24 числа месяца</com><br>
+			
+			<com>#Проверка зависимости целевого параметра от hour</com><br>
+			plt.figure(figsize=(16, 10))<br>
+			sns.countplot(x='hour', hue='target', data=df_train)<br>
+			
+			<com>По графику видно, что преступники более активны с 12-00 до 18-00</com><br>
+			<com>Выявлена явная зависимость дополнительных параметров Year/Month, day, hour с целевой переменной target.</com><br>
+			<com>В df_test необходимо также выделить данные параметры.</com><br>
+			
+			<com>#Вынесение данных Year/Month, day, hour из столбца time1, при помощи созданных ранее функций с последующим удалением столбца time1.</com><br>
+			split_datetime_yearmonth(df_test, 'time1')<br>
+			split_datetime_int(df_test, 'time1', 'day')<br>
+			split_datetime_int(df_test, 'time1', 'hour')<br>
+			df_test = df_test.drop(columns=['time1'])<br>
+			df_test.head()<br>
+			
+			<com>Сохранение предобработанных данных во внешние файлы</com><br>
+			<com>#Сохранение df_train в файл df_train.csv</com><br>
+			df_train.to_csv('df_train.csv', sep=';')<br>
+			
+			<com>#Сохранение df_test в файл df_test.csv</com><br>
+			df_test.to_csv('df_test.csv', sep=';')<br>
+			
+			<com>#Модуль 2</com><br>
+			<com>#Импорт библиотек</com><br>
+			from sklearn.tree import DecisionTreeClassifier<br>
+			from sklearn.ensemble import RandomForestClassifier<br>
+			from sklearn.ensemble import ExtraTreesClassifier<br>
+			from sklearn.neighbors import KNeighborsClassifier<br>
+			
+			<com>#Выделение целевого параметра</com><br>
+			y = df_train['target']<br>
+			x = df_train.drop(columns=['target'])<br>
+			
+			<com>#Разбиение данных на тестовую и отложенную выборку</com><br>
+			x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, stratify=y)<br>
+			
+			<com>#Создание объектов моделей</com><br>
+			model_DecTree = DecisionTreeClassifier()<br>
+			model_RanFore = RandomForestClassifier()<br>
+			model_ExtTree = ExtraTreesClassifier()<br>
+			model_KNeighb = KNeighborsClassifier()<br>
+			
+			<com>#Обучение моделей</com><br>
+			model_DecTree.fit(x_train, y_train)<br>
+			model_RanFore.fit(x_train, y_train)<br>
+			model_ExtTree.fit(x_train, y_train)<br>
+			model_KNeighb.fit(x_train, y_train)<br>
+			
+			<com>#Оценка результатов обученных моделей</com><br>
+			results = {}<br>
+			results['DecisionTreeClassifier'] = model_DecTree.score(x_test, y_test)<br>
+			results['RandomForestClassifier'] = model_RanFore.score(x_test, y_test)<br>
+			results['ExtraTreesClassifier'] = model_ExtTree.score(x_test, y_test)<br>
+			results['KNeighborsClassifier'] = model_KNeighb.score(x_test, y_test)<br>
+
+			plt.figure(figsize=(16, 10))<br>
+			pd.DataFrame.from_dict(data=results, orient='index').plot(kind='bar', legend=None)<br>
+			
+			<com>#Визуально сложно поределить какая из моделей более точно предсказывает сессию преступника</com><br>
+			pd.DataFrame([results]).max()<br>
+			
+			<com>Лучше всего для текущих данных подходит модель ExtraTreesClassifier, с точностью - 99.4380 %</com><br>
+			<com>Импорт дополнительных модулей для построения кривых валидации и обучения</com><br>
+			from sklearn.model_selection import validation_curve<br>
+			from sklearn.model_selection import learning_curve<br>
+			
+			<com>#Расчет кривой валидации</com><br>
+			param_range = [10, 20, 30, 40, 50, 60]<br>
+			train_scores, test_scores = validation_curve(<br>
+				ExtraTreesClassifier(),<br>
+				x_test, <br>
+				y_test,<br>
+				param_name="n_estimators",<br>
+				param_range=param_range,<br>
+				scoring="accuracy",<br>
+				n_jobs=-1<br>
+			)<br>
+			train_scores_mean_val = np.mean(train_scores, axis=1)<br>
+			train_scores_std_val = np.std(train_scores, axis=1)<br>
+			test_scores_mean_val = np.mean(test_scores, axis=1)<br>
+			test_scores_std_val = np.std(test_scores, axis=1)<br>
+			
+			<com>#Визуализация кривой валидации</com><br>
+			plt.figure(figsize=(16, 10))<br>
+			plt.xlabel(r"$\gamma$")<br>
+			plt.ylabel("Оценка")<br>
+			plt.ylim(0.0, 1.1)<br>
+			lw = 2<br>
+			plt.semilogx(<br>
+				param_range, <br>
+				train_scores_mean_val, <br>
+				label="Тренировочная оценка",<br>
+				color="darkorange",<br>
+				lw=lw<br>
+			)<br>
+			plt.fill_between(<br>
+				param_range, <br>
+				train_scores_mean_val - train_scores_std_val,<br>
+				train_scores_mean_val + train_scores_std_val, <br>
+				alpha=0.2,<br>
+				color="darkorange",<br>
+				lw=lw<br>
+			)<br>
+			plt.semilogx(<br>
+				param_range, <br>
+				test_scores_mean_val, <br>
+				label="Валидационная оценка",<br>
+				color="navy", <br>
+				lw=lw<br>
+			)<br>
+			plt.fill_between(<br>
+				param_range, <br>
+				train_scores_mean_val - test_scores_std_val,<br>
+				train_scores_mean_val + test_scores_std_val,<br> 
+				alpha=0.2,<br>
+				color="navy",<br> 
+				lw=lw<br>
+			)<br>
+			plt.legend(loc="best")<br>
+			plt.show()<br>
+			
+			<com>Кривая валидации построена от 0.99 до 1, это показывает на то, что тренировочная и<br>
+			валидационная оценка находятся где-то рядом, и они минимальны. Это значит что модель не пере- <br>
+			или недо- обучена</com><br>
+			
+			<com>#Расчет кривой обучения</com><br>
+			train_sizes, train_scores, test_scores, fit_times, _ = learning_curve(<br>
+				ExtraTreesClassifier(),<br>
+				x_test, <br>
+				y_test,<br>
+				n_jobs=-1,<br>
+				return_times=True,<br>
+				train_sizes=np.linspace(0.01, 1, 20)<br>
+			)<br>
+			train_scores_mean_lea = np.mean(train_scores, axis=1)<br>
+			train_scores_std_lea = np.std(train_scores, axis=1)<br>
+			test_scores_mean_lea = np.mean(test_scores, axis=1)<br>
+			test_scores_std_lea = np.std(test_scores, axis=1)<br>
+			
+			<com>#Визуализация кривой обучения</com><br>
+			plt.figure(figsize=(16, 10))<br>
+			plt.grid()<br>
+			plt.fill_between(<br>
+				train_sizes,<br>
+				train_scores_mean_lea - train_scores_std_lea,<br>
+				train_scores_mean_lea + train_scores_std_lea,<br>
+				alpha=0.1,<br>
+				color="r",<br>
+			)<br>
+			plt.fill_between(<br>
+				train_sizes,<br>
+				test_scores_mean_lea - test_scores_std_lea,<br>
+				test_scores_mean_lea + test_scores_std_lea,<br>
+				alpha=0.1,<br>
+				color="g",<br>
+			)<br>
+			plt.plot(<br>
+				train_sizes, <br>
+				train_scores_mean_lea, <br>
+				"o-", <br>
+				color="r", <br>
+				label="Тренировочная оценка"<br>
+			)<br>
+			plt.plot(<br>
+				train_sizes, <br>
+				test_scores_mean_lea, <br>
+				"o-", <br>
+				color="g", <br>
+				label="Валидационная оценка"<br>
+			)<br>
+			plt.legend(loc="best")<br>
+			
+			<com>Кривая обучения построена на 40000 данных, значения тренировочной оценки и<br>
+			валидационной оценки находятся в диапозоне от 0.99 до 1, это показывает на то, что эти все<br>
+			прямые "сошлись", следовательно такого количества данных достаточно для обучения точной модели,<br>
+			она не будет пере- или недо- обучена</com><br>
+			
+			<com>#Переобучение модели на всей обучающей выборке</com><br>
+			model_ExtTree.fit(x, y)<br>
+			
+			<com>#Предсказание вероятностей для тестовой выборки</com><br>
+			predict_data = model_ExtTree.predict(df_test))<br>
+			
+			<com>#Создание нового dataframe для отображения предсказаний</com><br>
+			predict_data_dict = {<br>
+				'target' : predict_data,<br>
+				'session_id' : df_test.index.tolist()<br>
+			}<br>
+			df_predict = pd.DataFrame(predict_data_dict).set_index('session_id')<br>
+			
+			<com>#Сохранение df_predict в файл df_predict.csv</com><br>
+			df_predict.to_csv('df_predict.csv', sep=';')<br>
+			
+			
         </div>
 
         <div class="pic">
